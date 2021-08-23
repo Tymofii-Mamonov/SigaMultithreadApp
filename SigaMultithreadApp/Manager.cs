@@ -33,7 +33,7 @@ namespace SigaMultithreadApp
         {
             for (var i = 1; i <= _numberOfThreads; i++)
             {
-                var currentDataSupplier = new DataSupplier(_numberOfThreads * 1350, _numberOfThreads * 2000, this);
+                var currentDataSupplier = new DataSupplier(_numberOfThreads * 1350, _numberOfThreads * 3000, this);
                 currentDataSupplier.Start();
             }
             await base.Start();
