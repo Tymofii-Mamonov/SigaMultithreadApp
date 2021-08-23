@@ -12,7 +12,7 @@ namespace SigaMultithreadApp
 
         protected GeneralThread(int minRandomMs, int maxRandomMs)
         {
-            if (MinRandomMs > MaxRandomMs)
+            if (minRandomMs > maxRandomMs)
                 throw new ArgumentOutOfRangeException();
 
             MinRandomMs = minRandomMs;
