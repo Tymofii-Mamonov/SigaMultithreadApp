@@ -7,12 +7,16 @@ namespace SigaMultithreadApp
     public abstract class GeneralThread
     {
         protected CancellationTokenSource CurrentCts;
-        protected readonly int SleepingTimeMs;
+        protected readonly int MinRandomMs;
+        protected readonly int MaxRandomMs;
 
         protected GeneralThread(int minRandomMs, int maxRandomMs)
         {
-            var random = new Random();
-            SleepingTimeMs = random.Next(minRandomMs, maxRandomMs);
+            if (MinRandomMs > MaxRandomMs)
+                throw new ArgumentOutOfRangeException();
+
+            MinRandomMs = minRandomMs;
+            MaxRandomMs = maxRandomMs;
         }
 
         public virtual async Task Start()
@@ -28,6 +32,11 @@ namespace SigaMultithreadApp
             CurrentCts?.Cancel();
         }
 
+        protected int GetNextRandomMs()
+        {
+            var random = new Random();
+            return random.Next(MinRandomMs, MaxRandomMs);
+        }
         protected abstract void Run(CancellationToken cancellationToken);
 
     }

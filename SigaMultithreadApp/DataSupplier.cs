@@ -28,7 +28,7 @@ namespace SigaMultithreadApp
         {
             while (!cancellationToken.IsCancellationRequested)
             {
-                Thread.Sleep(SleepingTimeMs);
+                Thread.Sleep(GetNextRandomMs());
                 if (cancellationToken.IsCancellationRequested)
                     break;
                 var message = new Message();

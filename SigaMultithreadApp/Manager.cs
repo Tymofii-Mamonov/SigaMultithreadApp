@@ -33,7 +33,7 @@ namespace SigaMultithreadApp
         {
             for (var i = 1; i <= _numberOfThreads; i++)
             {
-                var currentDataSupplier = new DataSupplier(11000, 12000, this);
+                var currentDataSupplier = new DataSupplier(_numberOfThreads * 1250, _numberOfThreads * 2000, this);
                 currentDataSupplier.Start();
             }
             await base.Start();
@@ -84,7 +84,7 @@ namespace SigaMultithreadApp
         {
             var stopwatch = new Stopwatch();
             stopwatch.Start();
-            Thread.Sleep(SleepingTimeMs);
+            Thread.Sleep(GetNextRandomMs());
             var timeSpan = stopwatch.Elapsed;
             stopwatch.Stop();
             return new ProcessedMessage
