@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using System.Windows;
 
@@ -21,10 +22,21 @@ namespace SigaMultithreadApp
             var instancesNumberParsed = int.TryParse(inputText, out var instancesNumber);
             if (instancesNumberParsed && instancesNumber > 0)
             {
-                var manager = new Manager(1000, 2500, instancesNumber);
-                _managers.Add(manager);
-                manager.NewDataProcessed += AppendMessage;
-                await Task.Run(manager.Start);
+                try
+                {
+                    var manager = new Manager(1000, 1500, instancesNumber);
+                    _managers.Add(manager);
+                    manager.NewDataProcessed += AppendMessage;
+                    await Task.Run(manager.Start);
+                }
+                catch (ArgumentOutOfRangeException)
+                {
+                    OutputTextBox.Text += "ERROR: the minRandom is greater than maxRandom\r\n";
+                }
+                catch (Exception exception)
+                {
+                    OutputTextBox.Text += $"ERROR: {exception.Message}";
+                }
             }
             else
             {
@@ -32,11 +44,18 @@ namespace SigaMultithreadApp
             }
         }
 
-        private void AppendMessage(string message)
+        private void AppendMessage(ProcessedMessage processedMessage)
         {
             Dispatcher.Invoke(() =>
             {
-                OutputTextBox.Text += $"{message}\r\n";
+                var output = "=====================================\r\n" +
+                                $"Message Description: {processedMessage.Message.MessageText}\r\n" +
+                                $"Message ID: {processedMessage.Message.Id}\r\n" +
+                                $"Message SentTime: {processedMessage.Message.SentTime}\r\n" +
+                                $"Processing Time: {processedMessage.ProcessingTime.Seconds}s {processedMessage.ProcessingTime.Milliseconds}ms\r\n" +
+                                $"Processing Ended: {processedMessage.EndProcessingTime}\r\n" +
+                                "=====================================\r\n";
+                OutputTextBox.Text += output;
             });
 
         }

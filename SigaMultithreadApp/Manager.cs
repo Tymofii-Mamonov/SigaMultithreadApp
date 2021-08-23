@@ -8,7 +8,7 @@ namespace SigaMultithreadApp
 {
     public class Manager : GeneralThread
     {
-        public delegate void DataProcessed(string message);
+        public delegate void DataProcessed(ProcessedMessage processedMessage);
         public event DataProcessed NewDataProcessed;
         public EventWaitHandle MessageEnqueued = new EventWaitHandle(false, EventResetMode.AutoReset);
         public EventWaitHandle StopRequested = new EventWaitHandle(false, EventResetMode.ManualReset);
@@ -33,7 +33,7 @@ namespace SigaMultithreadApp
         {
             for (var i = 1; i <= _numberOfThreads; i++)
             {
-                var currentDataSupplier = new DataSupplier(2000, 4000, this);
+                var currentDataSupplier = new DataSupplier(11000, 12000, this);
                 currentDataSupplier.Start();
             }
             await base.Start();
@@ -51,43 +51,48 @@ namespace SigaMultithreadApp
             while (!cancellationToken.IsCancellationRequested)
             {
                 MessageEnqueued.WaitOne();
-                var stopwatch = new Stopwatch();
-                stopwatch.Start();
-                Thread.Sleep(SleepingTimeMs);
-                Message currentMessage = null;
+
+                int queueCount;
                 lock (_messagesQueue)
+                    queueCount = _messagesQueue.Count;
+
+                if (queueCount <= 0) continue;
+                while (queueCount > 0 && !cancellationToken.IsCancellationRequested)
                 {
-                    if (_messagesQueue.Count > 0 && !cancellationToken.IsCancellationRequested)
+                    Message currentMessage = null;
+                    lock (_messagesQueue)
                         currentMessage = _messagesQueue.Dequeue();
 
+                    var processedMessage = ProcessMessage(currentMessage);
+
+                    if (cancellationToken.IsCancellationRequested)
+                        break;
+
+                    OnNewDataProcessed(processedMessage);
+                    lock (_messagesQueue)
+                        queueCount = _messagesQueue.Count;
                 }
-                var timeSpan = stopwatch.Elapsed;
-                stopwatch.Stop();
-                if (currentMessage != null)
-                    OnNewDataProcessed(ProcessMessage(currentMessage, timeSpan));
             }
         }
 
-        public string ProcessMessage(Message message, TimeSpan timeSpan)
+        protected virtual void OnNewDataProcessed(ProcessedMessage processedMessage)
         {
-            return "=====================================\r\n" +
-                   $"Message Description: {message.MessageText}\r\n" +
-                   $"Message ID: {message.Id}\r\n" +
-                   $"Message SentTime: {message.SentTime}\r\n" +
-                   $"Processing Time: {timeSpan.Minutes}s {timeSpan.Milliseconds}ms\r\n" +
-                   "=====================================\r\n";
+            NewDataProcessed?.Invoke(processedMessage);
         }
 
-        protected virtual void OnNewDataProcessed(string message)
+        private ProcessedMessage ProcessMessage(Message message)
         {
-            NewDataProcessed?.Invoke(message);
-        }
-
-        public override void Dispose()
-        {
-            MessageEnqueued?.Dispose();
-            StopRequested?.Dispose();
-            base.Dispose();
+            var stopwatch = new Stopwatch();
+            stopwatch.Start();
+            Thread.Sleep(SleepingTimeMs);
+            var timeSpan = stopwatch.Elapsed;
+            stopwatch.Stop();
+            return new ProcessedMessage
+            {
+                Message = message,
+                ProcessingTime = timeSpan,
+                EndProcessingTime = DateTime.UtcNow
+            };
         }
     }
 }

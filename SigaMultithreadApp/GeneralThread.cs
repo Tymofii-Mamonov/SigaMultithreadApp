@@ -4,7 +4,7 @@ using System.Threading.Tasks;
 
 namespace SigaMultithreadApp
 {
-    public abstract class GeneralThread : IDisposable
+    public abstract class GeneralThread
     {
         protected CancellationTokenSource CurrentCts;
         protected readonly int SleepingTimeMs;
@@ -26,14 +26,9 @@ namespace SigaMultithreadApp
         public virtual void Stop()
         {
             CurrentCts?.Cancel();
-            Dispose();
         }
 
         protected abstract void Run(CancellationToken cancellationToken);
 
-        public virtual void Dispose()
-        {
-            CurrentCts?.Dispose();
-        }
     }
 }

@@ -73,6 +73,7 @@
   <ItemGroup>
     <Compile Include="Manager.cs" />
     <Compile Include="Message.cs" />
+    <Compile Include="ProcessedMessage.cs" />
     <Compile Include="Properties\AssemblyInfo.cs">
       <SubType>Code</SubType>
     </Compile>
