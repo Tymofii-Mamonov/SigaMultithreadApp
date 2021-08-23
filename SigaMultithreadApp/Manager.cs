@@ -58,7 +58,7 @@ namespace SigaMultithreadApp
                 if (queueCount <= 0) continue;
                 while (queueCount > 0 && !cancellationToken.IsCancellationRequested)
                 {
-                    Message currentMessage = null;
+                    Message currentMessage;
                     lock (_messagesQueue)
                         currentMessage = _messagesQueue.Dequeue();
 
