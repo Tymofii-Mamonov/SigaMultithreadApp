@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Threading;
-using System.Threading.Tasks;
 
 namespace SigaMultithreadApp
 {
@@ -29,14 +28,14 @@ namespace SigaMultithreadApp
             }
         }
 
-        public override async Task Start()
+        public override void Start()
         {
             for (var i = 1; i <= _numberOfThreads; i++)
             {
                 var currentDataSupplier = new DataSupplier(_numberOfThreads * 1350, _numberOfThreads * 3000, this);
                 currentDataSupplier.Start();
             }
-            await base.Start();
+            base.Start();
         }
 
         public override void Stop()

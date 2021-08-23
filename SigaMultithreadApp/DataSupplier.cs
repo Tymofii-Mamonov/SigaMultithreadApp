@@ -1,5 +1,4 @@
 ﻿using System.Threading;
-using System.Threading.Tasks;
 
 namespace SigaMultithreadApp
 {
@@ -12,10 +11,10 @@ namespace SigaMultithreadApp
 
         private readonly Manager _supplierManager;
 
-        public override Task Start()
+        public override void Start()
         {
             new Thread(Stop).Start();
-            return base.Start();
+            base.Start();
         }
 
         public override void Stop()

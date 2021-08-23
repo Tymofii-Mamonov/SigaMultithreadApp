@@ -19,12 +19,12 @@ namespace SigaMultithreadApp
             MaxRandomMs = maxRandomMs;
         }
 
-        public virtual async Task Start()
+        public virtual void Start()
         {
             var cts = new CancellationTokenSource();
             var ct = cts.Token;
             CurrentCts = cts;
-            await Task.Run(() => Run(ct), ct);
+            Task.Run(() => Run(ct), ct);
         }
 
         public virtual void Stop()
